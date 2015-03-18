@@ -63,12 +63,6 @@
 	
 	
 var prefix = "tejaswigowda";
-      var valid = {
-        png: true,
-        jpg: true,
-        gif: true,
-        bmp: true
-      }
 
 function addNew()
 {
@@ -81,7 +75,8 @@ function addNew()
       fd.append('input', fileObj);
       var t = filename.substring(filename.length-3, filename.length).toLowerCase();
       if(['png', 'jpg', 'gif'].indexOf(t) == -1){
-          alert("Incorrect File -- Please upload image");  
+          alert("Incorrect File -- Please upload an image"); 
+          document.getElementById("fileUpload").value = ""; 
           return;
       }
 
@@ -91,8 +86,8 @@ function addNew()
       fd.append('fileInput', fileInput);
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
-          if (xhr.readyState != 4) { return; }
           document.getElementById("fileUpload").value = "";
+          if (xhr.readyState != 4) { return; }
       };
       xhr.open("POST", "/uploadFile", true);
       xhr.send(fd); 

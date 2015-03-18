@@ -1,6 +1,3 @@
-var urlencode = require('urlencode');
-var json = require('json-middleware');
-
 var express = require("express"),
     app = express(),
     bodyParser = require('body-parser'),
@@ -13,10 +10,8 @@ app.get("/", function (req, res) {
   res.redirect("/index.html");
 });
 
-var db = require('mongoskin').db('mongodb://user:password@localhost:27017/todo');
+var db = require('mongoskin').db('mongodb://user:password@localhost:27017/photos');
 console.log(db);
-
-var todos = [];
 
 app.get("/addtodo", function (req, res) {
 	var x = req.query;
@@ -92,17 +87,15 @@ var fs = require('fs');
 var AWS = require('aws-sdk');
 AWS.config.loadFromPath('./credentials.json');
 var s3 = new AWS.S3()//.client;
-console.log(s3)
 
 var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 app.use('/uploadFile', multipartMiddleware);
 
 app.post('/uploadFile', function(req, res){
-    console.log(req.body);
      var intname = req.body.fileInput;
-     var filename = req.files.input.name;
-     var fileType =  req.files.input.type;
+//     var filename = req.files.input.name;
+//     var fileType =  req.files.input.type;
      var tmpPath = req.files.input.path;
      var s3Path = '/' + intname;
                             
@@ -118,7 +111,8 @@ app.post('/uploadFile', function(req, res){
              res.end("success");
          });
      });
-});
+	}
+);
 
 
 console.log("Simple static server listening at http://" + hostname + ":" + port);
