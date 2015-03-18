@@ -62,17 +62,43 @@
    }
 	
 	
-   function addNew()
-   {
-	   var newtodo = prompt("Enter new todo", "")
-	   var url = "./addtodo?newtodo=" + encodeURIComponent(newtodo) + "&todoid=" + new Date().getTime().toString();
-	   var callback = function(data){
-		   if(data === "added"){
-			   updateList();
-		   }
-	   } 
-	   loadURL(url, callback);   
-   }
+var prefix = "tejaswigowda";
+      var valid = {
+        png: true,
+        jpg: true,
+        gif: true,
+        bmp: true
+      }
+
+function addNew()
+{
+      var fd = new FormData();
+      var fileObj = document.getElementById('fileUpload').files[0];
+      var filename = fileObj.name;
+      var size = fileObj.size;
+      
+      fd.append('date', (new Date()).toString());
+      fd.append('input', fileObj);
+      var t = filename.substring(filename.length-3, filename.length).toLowerCase();
+      if(['png', 'jpg', 'gif'].indexOf(t) == -1){
+          alert("Incorrect File -- Please upload image");  
+          return;
+      }
+
+      var fileInput = prefix + new Date().getTime().toString() + "." + t;
+
+
+      fd.append('fileInput', fileInput);
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState != 4) { return; }
+          document.getElementById("fileUpload").value = "";
+      };
+      xhr.open("POST", "/uploadFile", true);
+      xhr.send(fd); 
+}
+
+
    
    var allTodos;
    function updateList()
@@ -133,8 +159,8 @@
 	
 </head>
 <body onload='updateList()'>
-	<h1> Todos </h1>
-	<a href='javascript:addNew()'>Add new</a>
+	<h1> Photo Uploader </h1>
+    <input type='file' id='fileUpload' onchange='addNew()'>
 	<hr>
 	<div id="list">
 		list is empty
