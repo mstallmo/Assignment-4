@@ -66,13 +66,11 @@ var prefix = "tejaswigowda";
 
 function addNew()
 {
-      var fd = new FormData();
       var fileObj = document.getElementById('fileUpload').files[0];
       var filename = fileObj.name;
       var size = fileObj.size;
       
-      fd.append('date', (new Date()).toString());
-      fd.append('input', fileObj);
+
       var t = filename.substring(filename.length-3, filename.length).toLowerCase();
       if(['png', 'jpg', 'gif'].indexOf(t) == -1){
           alert("Incorrect File -- Please upload an image"); 
@@ -80,10 +78,22 @@ function addNew()
           return;
       }
 
+
+      var fd = new FormData();
       var fileInput = prefix + new Date().getTime().toString() + "." + t;
 
-
+      fd.append('date', (new Date()).toString());
+      fd.append('input', fileObj);
       fd.append('fileInput', fileInput);
+	  
+	  var fordb = {
+		  id: "photo" + new Date().getTime().toString(),
+		  name: "Untitled",
+		  url: "https://s3.amazonaws.com/ameweb/" + fileInput
+	  }
+	  
+      fd.append('fordb', fordb);
+	  
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
           document.getElementById("fileUpload").value = "";

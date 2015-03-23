@@ -10,7 +10,7 @@ app.get("/", function (req, res) {
   res.redirect("/index.html");
 });
 
-var db = require('mongoskin').db('mongodb://user:password@localhost:27017/photos');
+var db = require('mongoskin').db('mongodb://user1:password@localhost:27017/photos');
 console.log(db);
 
 app.get("/addtodo", function (req, res) {
@@ -94,8 +94,8 @@ app.use('/uploadFile', multipartMiddleware);
 
 app.post('/uploadFile', function(req, res){
      var intname = req.body.fileInput;
-//     var filename = req.files.input.name;
-//     var fileType =  req.files.input.type;
+     var fordb = req.body.fordb;
+
      var tmpPath = req.files.input.path;
      var s3Path = '/' + intname;
                             
@@ -106,10 +106,15 @@ app.post('/uploadFile', function(req, res){
              Key:intname,
              Body: data
          };
-         s3.putObject(params, function(err, data) {
-             console.log(err);
-             res.end("success");
+         s3.putObject(params, function(err1, data) {
          });
+		 
+		 db.collection("data").insert(JSON.stringify(fordb), function(err2, result){
+			 if(result){
+				 res.end("success");
+			 }
+		 });
+		  
      });
 	}
 );
