@@ -92,7 +92,7 @@ function addNew()
 		  url: "https://s3.amazonaws.com/ameweb/" + fileInput
 	  }
 	  
-      fd.append('fordb', fordb);
+      fd.append('fordb', encodeURIComponent(JSON.stringify(fordb)));
 	  
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
