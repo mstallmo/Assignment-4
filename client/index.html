@@ -98,6 +98,7 @@ function addNew()
       xhr.onreadystatechange = function() {
           document.getElementById("fileUpload").value = "";
           if (xhr.readyState != 4) { return; }
+		  updateList();
       };
       xhr.open("POST", "/uploadFile", true);
       xhr.send(fd); 
@@ -105,18 +106,19 @@ function addNew()
 
 
    
-   var allTodos;
+   var allPhotos;
    function updateList()
    {
-	   var url = "./listtodos";	 
+	   var url = "./listphotos";	 
 	   var callback = function(data){
 		   var list = JSON.parse(data);
-		   allTodos = list;
+		   allPhotos = list;
 		   var output = "";
 		   for(var i=0; i < list.length; i++){
-			   output = output + "<p>" + list[i].newtodo + "</p>";
-			   output = output + "<a href='javascript:deleteTodo(" + list[i].todoid.toString() + ")'>" + "Delete</a>";
-			   output = output + "<a href='javascript:editTodo(" + list[i].todoid.toString() + ")'>" + "Edit</a>";
+			   output = output + "<p>" + list[i].name + "</p>";
+			   output = output + "<a href='" + list[i].url + "' target='_blank'>" + "View</a>";
+			   output = output + "<a href='javascript:renamePhoto(" + i + ")'>" + "Rename</a>";
+			   output = output + "<a href='javascript:deletePhoto(" + i + ")'>" + "Delete</a>";
 			   output = output + "<hr>";
 		   }
 		   document.getElementById("list").innerHTML = output;
@@ -125,8 +127,9 @@ function addNew()
    	
    }
    
-   function deleteTodo(index){
-	   var url = "./deletetodo?index=" + encodeURIComponent(index);
+   function deletePhoto(i){
+	   id = allPhotos[i];
+	   var url = "./deletephoto?index=" + encodeURIComponent(index);
 	   var callback = function(data){
 		   if(data === "deleted"){
 			   updateList();
@@ -135,11 +138,12 @@ function addNew()
 	   loadURL(url, callback); 
    }
    
-   function editTodo(id, str){	   
-	   var newtodo = prompt("Edit todo", getTodoText(id))
+   function renamePhoto(i){
+	   var id = allPhotos[i].id;	   
+	   var newname = prompt("Rename photo", getPhotoName(id))
 	   
-	   var url = "./edittodo?todoid=" + encodeURIComponent(id) 
-	   					+ "&newtodo=" + encodeURIComponent(newtodo);
+	   var url = "./renamephoto?id=" + encodeURIComponent(id) 
+	   					+ "&name=" + encodeURIComponent(newname);
 	   
 	   
 	   var callback = function(data){
@@ -150,11 +154,11 @@ function addNew()
 	   loadURL(url, callback); 
    }
    
-   function getTodoText(id)
+   function getPhotoName(id)
    {
-	   for(var i = 0; i < allTodos.length; i++){
-		   if( parseInt(allTodos[i].todoid) == id){
-			   return allTodos[i].newtodo;
+	   for(var i = 0; i < allPhotos.length; i++){
+		   if(allPhotos[i].id === id){
+			   return allPhotos[i].name;
 		   }
 	   }
 	   return "";

@@ -24,7 +24,7 @@ app.get("/addtodo", function (req, res) {
 	db.collection("todo").insert(x, callback);
  });
 
- app.get("/edittodo", function (req, res) {
+ app.get("/renamePhoto", function (req, res) {
  	var x = req.query;
  	var callback = function(error, result){
  		if(result)
@@ -33,14 +33,14 @@ app.get("/addtodo", function (req, res) {
  		}
  	}
 	
-	db.collection("todo").findOne({todoid: x.todoid}, function(err, result1) {
+	db.collection("data").findOne({id: x.id}, function(err, result1) {
 		if(result1){
 			console.log(result1);
-			result1.newtodo = x.newtodo;
-			db.collection("todo").save(result1, callback);
+			result1.name = x.name;
+			db.collection("data").save(result1, callback);
 		}
 		else{
-			db.collection("todo").insert(x, callback);
+			db.collection("data").insert(x, callback);
 		}
 	});
 	
@@ -49,7 +49,7 @@ app.get("/addtodo", function (req, res) {
   
   
 
-app.get("/deletetodo", function (req, res) {
+app.get("/deletephoto", function (req, res) {
 	var index = req.query.index;
 	var callback = function(error, result){
 		if(result)
@@ -57,12 +57,12 @@ app.get("/deletetodo", function (req, res) {
 			res.end("deleted");
 		}
 	}
-	db.collection("todo").remove({"todoid": index.toString()}, callback);
+	db.collection("data").remove({"id": index}, callback);
 });
 
 
-app.get("/listtodos", function (req, res) {
-	db.collection("todo").find().toArray(function(err, result) {
+app.get("/listphotos", function (req, res) {
+	db.collection("data").find().toArray(function(err, result) {
     	if (result)
     	{
 			res.end(JSON.stringify(result));
