@@ -128,38 +128,74 @@ app.post('/uploadFile', function(req, res){
 });
 
 	
-	app.get('/logout', function(req, res){
-  		// destroy the user's session to log them out
-  		// will be re-created next request
-  		req.session.destroy(function(){
-    		res.send("You have been logged out");
-  		});
-	});
+app.get('/logout', function(req, res){
+    // destroy the user's session to log them out
+    req.session.destroy(function(){
+        res.send("You have been logged out");
+    });
+});
 
-	
-	app.get('/login', function(req, res){
-	  		auth.authenticate(req.query.userID, req.query.password,'patients', 'patient', db, function(err, user){
-	    		if (user) {
-	      			// Regenerate session when signing in
-	      			// to prevent fixation 
-	      			req.session.regenerate(function(){
-	        			// Store the user's primary key 
-	        			// in the session store to be retrieved,
-	        			// or in this case the entire user object
 
-							req.session.userID = user.userID;
-							req.session.userType = 'user';
-							req.session.collection = 'users';
-							req.session.password = user.password;
-							res.send('1');
-	      			});
+app.get('/login', function(req, res){
+        auth.authenticate(req.query.userID, req.query.password,'users', 'user', db, function(err, user){
+            if (user) {
+                // Regenerate session when signing in
+                req.session.regenerate(function(){
+                        req.session.userID = user.userID;
+                        req.session.userType = 'user';
+                        req.session.collection = 'users';
+                        req.session.password = user.password;
+                        res.send('1');
+                });
 
-	    		} else {
-	      			res.send('0');
-	    		}
-	  		});
+            } else {
+                res.send('0');
+            }
+        });
+});
+
+app.get('/getUser', function(req, res){
+	auth.restrict(req, res, db, ['user'], function(ret){	
+			if(ret){		
+					db.collection(collection).findOne({userID: info.userID}, function(err, result) {
+					if(result) {
+                            //res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
+                            var output = JSON.stringify(result);
+                            res.write(output);
+                            res.end();
+					}
+                    else{
+                        res.send('0');
+                    }
+				    });
+			}
+			else {
+				res.send('noauth');
+				res.end();
+			}
 		});
-	
+});
+
+app.get('/createUser', function(req, res){
+	auth.restrict(req, res, db, approvedUsers, function(ret){	
+            if(ret){
+					db.collection(collection).findOne({userID:info.userID}, function(err, result) {
+						if(result) { 
+							res.send('0');
+						} else {
+							db.collection(collection).insert(info, function(err, result) {
+								if (err) throw err;
+								if (result) {
+									res.send('1');
+								}
+							});
+						}
+			  });
+			} else {
+				res.send('You do not have the proper permissions');
+			}
+		});
+});
 
 console.log("Simple static server listening at http://" + hostname + ":" + port);
 app.listen(port, hostname);
