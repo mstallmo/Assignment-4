@@ -10,6 +10,9 @@ app.get("/", function (req, res) {
   res.redirect("/index.html");
 });
 
+var auth = require('./authenticate.js');
+var auth = require('./user.js');
+
 var db = require('mongoskin').db('mongodb://user1:password@localhost:27017/photos');
 console.log(db);
 
@@ -76,6 +79,12 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+var expressSession = require('express-session');
+var cookieParser = require('cookie-parser'); 
+app.use(cookieParser('ame498'));
+app.use(expressSession());
+
+
 app.use(express.static(__dirname + '/client'));
 app.use(errorHandler({
   dumpExceptions: true,
@@ -118,7 +127,39 @@ app.post('/uploadFile', function(req, res){
      
 });
 
+	
+	app.get('/logout', function(req, res){
+  		// destroy the user's session to log them out
+  		// will be re-created next request
+  		req.session.destroy(function(){
+    		res.send("You have been logged out");
+  		});
+	});
 
+	
+	app.get('/login', function(req, res){
+	  		auth.authenticate(req.query.userID, req.query.password,'patients', 'patient', db, function(err, user){
+	    		if (user) {
+	      			// Regenerate session when signing in
+	      			// to prevent fixation 
+	      			req.session.regenerate(function(){
+	        			// Store the user's primary key 
+	        			// in the session store to be retrieved,
+	        			// or in this case the entire user object
+
+							req.session.userID = user.userID;
+							req.session.userType = 'user';
+							req.session.collection = 'users';
+							req.session.password = user.password;
+							res.send('1');
+	      			});
+
+	    		} else {
+	      			res.send('0');
+	    		}
+	  		});
+		});
+	
 
 console.log("Simple static server listening at http://" + hostname + ":" + port);
 app.listen(port, hostname);
