@@ -1,9 +1,9 @@
 <html>
 <head>
 	<style>
-	
+
 	</style>
-	
+
 	<script>
 	/*
 	This method uses a couple different methods of instantiating the
@@ -13,7 +13,7 @@
 	function getXMLHTTPRequest()
 	{
 	    var request;
-    
+
 	    // Lets try using ActiveX to instantiate the XMLHttpRequest object
 	    try{
 	        request = new ActiveXObject("Microsoft.XMLHTTP");
@@ -25,7 +25,7 @@
 	        }
 	    }
 
-	    // If the previous didn't work, lets check if the browser natively support XMLHttpRequest 
+	    // If the previous didn't work, lets check if the browser natively support XMLHttpRequest
 	    if(!request && typeof XMLHttpRequest != "undefined"){
 	        //The browser does, so lets instantiate the object
 	        request = new XMLHttpRequest();
@@ -33,8 +33,8 @@
 
 	    return request;
 	}
-	
-	
+
+
    function loadURL(url, callback)
    {
        var aXMLHttpRequest = getXMLHTTPRequest();
@@ -49,7 +49,7 @@
 			   }
 
         };
-     
+
         //Lets fire off the request
            aXMLHttpRequest.send(null);
        }
@@ -60,8 +60,8 @@
            alert("A problem occurred instantiating the XMLHttpRequest object.");
        }
    }
-	
-	
+
+
 var prefix = "tejaswigowda";
 
 function addNew()
@@ -69,12 +69,12 @@ function addNew()
       var fileObj = document.getElementById('fileUpload').files[0];
       var filename = fileObj.name;
       var size = fileObj.size;
-      
+
 
       var t = filename.substring(filename.length-3, filename.length).toLowerCase();
       if(['png', 'jpg', 'gif'].indexOf(t) == -1){
-          alert("Incorrect File -- Please upload an image"); 
-          document.getElementById("fileUpload").value = ""; 
+          alert("Incorrect File -- Please upload an image");
+          document.getElementById("fileUpload").value = "";
           return;
       }
 
@@ -85,15 +85,15 @@ function addNew()
       fd.append('date', (new Date()).toString());
       fd.append('input', fileObj);
       fd.append('fileInput', fileInput);
-	  
+
 	  var fordb = {
 		  id: "photo" + new Date().getTime().toString(),
 		  name: "Untitled",
 		  url: "https://s3.amazonaws.com/ameweb/" + fileInput
 	  }
-	  
+
       fd.append('fordb', encodeURIComponent(JSON.stringify(fordb)));
-	  
+
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
           document.getElementById("fileUpload").value = "";
@@ -101,15 +101,15 @@ function addNew()
 		  updateList();
       };
       xhr.open("POST", "/uploadFile", true);
-      xhr.send(fd); 
+      xhr.send(fd);
 }
 
 
-   
+
    var allPhotos;
    function updateList()
    {
-	   var url = "./listphotos";	 
+	   var url = "./listphotos";
 	   var callback = function(data){
 		   var list = JSON.parse(data);
 		   allPhotos = list;
@@ -122,11 +122,11 @@ function addNew()
 			   output = output + "<hr>";
 		   }
 		   document.getElementById("list").innerHTML = output;
-	   }  
-	   loadURL(url, callback);  
-   	
+	   }
+	   loadURL(url, callback);
+
    }
-   
+
    function deletePhoto(i){
 	   id = allPhotos[i];
 	   var url = "./deletephoto?index=" + encodeURIComponent(index);
@@ -134,26 +134,26 @@ function addNew()
 		   if(data === "deleted"){
 			   updateList();
 		   }
-	   } 
-	   loadURL(url, callback); 
+	   }
+	   loadURL(url, callback);
    }
-   
+
    function renamePhoto(i){
-	   var id = allPhotos[i].id;	   
+	   var id = allPhotos[i].id;
 	   var newname = prompt("Rename photo", getPhotoName(id))
-	   
-	   var url = "./renamephoto?id=" + encodeURIComponent(id) 
+
+	   var url = "./renamephoto?id=" + encodeURIComponent(id)
 	   					+ "&name=" + encodeURIComponent(newname);
-	   
-	   
+
+
 	   var callback = function(data){
 		   if(data === "done"){
 			   updateList();
 		   }
-	   } 
-	   loadURL(url, callback); 
+	   }
+	   loadURL(url, callback);
    }
-   
+
    function getPhotoName(id)
    {
 	   for(var i = 0; i < allPhotos.length; i++){
@@ -163,16 +163,42 @@ function addNew()
 	   }
 	   return "";
    }
-   
+
 	</script>
-	
+
 </head>
 <body onload='updateList()'>
-	<h1> Photo Uploader </h1>
-    <input type='file' id='fileUpload' onchange='addNew()'>
-	<hr>
-	<div id="list">
-		list is empty
+	<div style='display: none' id='postlogin'>
+		<h1> Photo Uploader </h1>
+    	<input type='file' id='fileUpload' onchange='addNew()'>
+			<hr>
+			<div id="list">
+				list is empty
+			</div>
+	</div>
+
+	<div id='prelogin'>
+		<div class='box'>
+			<h1> Sign In</h1>
+			<label for='username'> Username </label>
+			<input type='text' id='username'>
+			<label for'password'> Password </label>
+			<input type='password' id='password'>
+			<a href='javascript:login()'> Log in </a>
+		</div>
+
+		<div class='box'>
+			<h1>Register</h1>
+			<label for='nameReg'>Full Name </label>
+			<input type='text' id='nameReg'>
+			<label for='usernameReg'> Email </label>
+			<input type='email' id='usernameReg'>
+			<label for='passwordReg'> Password </label>
+			<input type='password' id='passwordReg'>
+			<label for='passwordReg1'> Retype Password </label>
+			<input type='password' id='passwordReg1'>
+			<a href='javascript:register()'> Register </a>
+		</div>
 	</div>
 </body>
 
