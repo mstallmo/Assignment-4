@@ -11,7 +11,6 @@ app.get("/", function (req, res) {
 });
 
 var auth = require('./authenticate.js');
-var auth = require('./user.js');
 
 var db = require('mongoskin').db('mongodb://user1:password@localhost:27017/photos');
 console.log(db);
