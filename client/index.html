@@ -4,6 +4,8 @@
 
 	</style>
 
+	<script src="md5.js"></script>
+
 	<script>
 	/*
 	This method uses a couple different methods of instantiating the
@@ -164,6 +166,36 @@ function addNew()
 	   return "";
    }
 
+	function register()
+	{
+		var name = document.getElementById("nameReg").value;
+		var email = document.getElementById("usernameReg").value;
+		var pass1 = document.getElementById("passwordReg").value;
+		var pass2 = document.getElementById("passwordReg1").value;
+
+		if(pass1 != pass2){
+			alert('passwords do not match!');
+			return;
+		}
+
+		var url = "./createUser";
+		url = url + "?name=" + name;
+		url = url + "&userID=" + email;
+		url = url + "&password=" + pass1;
+		url = url + "&userType=user";
+		url = url + "&collection=users";
+
+		console.log(url);
+
+		loadURL(url, function(data){
+			if(data === "1"){
+				alert("account created");
+			} else {
+				alert("User already exists");
+			}
+		});
+	}
+
 	</script>
 
 </head>
@@ -201,5 +233,4 @@ function addNew()
 		</div>
 	</div>
 </body>
-
 </html>

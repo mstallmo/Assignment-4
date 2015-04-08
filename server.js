@@ -34,7 +34,7 @@ app.get("/addtodo", function (req, res) {
  			res.end("done");
  		}
  	}
-	
+
 	db.collection("data").findOne({id: x.id}, function(err, result1) {
 		if(result1){
 			console.log(result1);
@@ -45,11 +45,11 @@ app.get("/addtodo", function (req, res) {
 			db.collection("data").insert(x, callback);
 		}
 	});
-	
+
   });
 
-  
-  
+
+
 
 app.get("/deletephoto", function (req, res) {
 	var index = req.query.index;
@@ -79,7 +79,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 var expressSession = require('express-session');
-var cookieParser = require('cookie-parser'); 
+var cookieParser = require('cookie-parser');
 app.use(cookieParser('ame498'));
 app.use(expressSession());
 
@@ -113,7 +113,7 @@ app.post('/uploadFile', function(req, res){
 
      var tmpPath = req.files.input.path;
      var s3Path = '/' + intname;
-                            
+
      fs.readFile(tmpPath, function (err, data) {
          var params = {
              Bucket:'ameweb',
@@ -123,10 +123,10 @@ app.post('/uploadFile', function(req, res){
          };
          s3.putObject(params, function(err1, data) {});
 		 });
-     
+
 });
 
-	
+
 app.get('/logout', function(req, res){
     // destroy the user's session to log them out
     req.session.destroy(function(){
@@ -154,8 +154,8 @@ app.get('/login', function(req, res){
 });
 
 app.get('/getUser', function(req, res){
-	auth.restrict(req, res, db, ['user'], function(ret){	
-			if(ret){		
+	auth.restrict(req, res, db, ['user'], function(ret){
+			if(ret){
 					db.collection(collection).findOne({userID: info.userID}, function(err, result) {
 					if(result) {
                             //res.writeHead(200, "OK", {'Content-Type': 'text/plain'});
@@ -176,13 +176,13 @@ app.get('/getUser', function(req, res){
 });
 
 app.get('/createUser', function(req, res){
-	auth.restrict(req, res, db, approvedUsers, function(ret){	
+	auth.restrict(req, res, db, ['user'], function(ret){
             if(ret){
-					db.collection(collection).findOne({userID:info.userID}, function(err, result) {
-						if(result) { 
+					db.collection(req.query.collection).findOne({userID:req.query.userID}, function(err, result) {
+						if(result) {
 							res.send('0');
 						} else {
-							db.collection(collection).insert(info, function(err, result) {
+							db.collection(req.query.collection).insert(req.query, function(err, result) {
 								if (err) throw err;
 								if (result) {
 									res.send('1');
