@@ -7,6 +7,8 @@
 	<script src="md5.js"></script>
 
 	<script>
+
+
 	/*
 	This method uses a couple different methods of instantiating the
 	XMLHttpRequest object. The reason we do this is so we can support
@@ -64,7 +66,7 @@
    }
 
 
-var prefix = "tejaswigowda";
+var userID = "";
 
 function addNew()
 {
@@ -82,11 +84,12 @@ function addNew()
 
 
       var fd = new FormData();
-      var fileInput = prefix + new Date().getTime().toString() + "." + t;
+      var fileInput = userID + new Date().getTime().toString() + "." + t;
 
       fd.append('date', (new Date()).toString());
       fd.append('input', fileObj);
       fd.append('fileInput', fileInput);
+			fd.append('collection', userID);
 
 	  var fordb = {
 		  id: "photo" + new Date().getTime().toString(),
@@ -112,6 +115,8 @@ function addNew()
    function updateList()
    {
 	   var url = "./listphotos";
+		 url = url + "?collection=" + userID;
+
 	   var callback = function(data){
 		   var list = JSON.parse(data);
 		   allPhotos = list;
@@ -130,13 +135,16 @@ function addNew()
    }
 
    function deletePhoto(i){
-	   id = allPhotos[i];
-	   var url = "./deletephoto?index=" + encodeURIComponent(index);
+	   var id = allPhotos[i].id;
+		 alert(id);
+	   var url = "./deletephoto?id=" + encodeURIComponent(id)
+		  			 +"&collection=" + userID;
 	   var callback = function(data){
 		   if(data === "deleted"){
 			   updateList();
 		   }
 	   }
+
 	   loadURL(url, callback);
    }
 
@@ -145,7 +153,8 @@ function addNew()
 	   var newname = prompt("Rename photo", getPhotoName(id))
 
 	   var url = "./renamephoto?id=" + encodeURIComponent(id)
-	   					+ "&name=" + encodeURIComponent(newname);
+	   					+ "&name=" + encodeURIComponent(newname)
+							+ "&collection=" + userID;
 
 
 	   var callback = function(data){
@@ -170,10 +179,10 @@ function addNew()
 	{
 		var name = document.getElementById("nameReg").value;
 		var email = document.getElementById("usernameReg").value;
-		var pass1 = document.getElementById("passwordReg").value;
-		var pass2 = document.getElementById("passwordReg1").value;
+		var pw1 = document.getElementById("passwordReg").value;
+		var pw2 = document.getElementById("passwordReg1").value;
 
-		if(pass1 != pass2){
+		if(pw1 != pw2){
 			alert('passwords do not match!');
 			return;
 		}
@@ -181,56 +190,92 @@ function addNew()
 		var url = "./createUser";
 		url = url + "?name=" + name;
 		url = url + "&userID=" + email;
-		url = url + "&password=" + pass1;
+		url = url + "&password=" + hex_md5(pw1);
 		url = url + "&userType=user";
 		url = url + "&collection=users";
 
-		console.log(url);
-
 		loadURL(url, function(data){
 			if(data === "1"){
-				alert("account created");
-			} else {
-				alert("User already exists");
+				alert("account created!")
+				document.getElementById("nameReg").value="";
+				document.getElementById("usernameReg").value="";
+				document.getElementById("passwordReg").value="";
+				document.getElementById("passwordReg1").value="";
+			}
+			else{
+				alert("account already exists");
 			}
 		});
 	}
 
+	function login()
+	{
+		var email = document.getElementById("username").value;
+		var pw = hex_md5(document.getElementById("password").value);
+
+		var url = "./login";
+		url = url + "?userID=" + email;
+		url = url + "&password=" + pw;
+		url = url +"&userType=user";
+		url = url +"&collection=users";
+
+		loadURL(url , function(data){
+			if(data === "1"){
+				document.getElementById("postlogin").style.display="block";
+				document.getElementById("prelogin").style.display="none";
+				userID = email;
+				updateList();
+			}
+			else{
+				alert("Login failed");
+				document.getElementById("username").value="";
+			  document.getElementById("password").value="";
+			}
+
+		});
+	}
 	</script>
 
 </head>
 <body onload='updateList()'>
-	<div style='display: none' id='postlogin'>
+	<div style='display:none' id='postlogin'>
 		<h1> Photo Uploader </h1>
     	<input type='file' id='fileUpload' onchange='addNew()'>
-			<hr>
-			<div id="list">
-				list is empty
-			</div>
+		<hr>
+		<div id="list">
+			list is empty
+		</div>
 	</div>
-
 	<div id='prelogin'>
 		<div class='box'>
-			<h1> Sign In</h1>
+			<h1> Sign in </h1>
+
 			<label for='username'> Username </label>
-			<input type='text' id='username'>
-			<label for'password'> Password </label>
-			<input type='password' id='password'>
+	    	<input type='email' id='username' >
+
+			<label for='password'> Password </label>
+	    	<input type='password' id='password' >
+
 			<a href='javascript:login()'> Log in </a>
 		</div>
 
 		<div class='box'>
-			<h1>Register</h1>
-			<label for='nameReg'>Full Name </label>
-			<input type='text' id='nameReg'>
-			<label for='usernameReg'> Email </label>
-			<input type='email' id='usernameReg'>
+			<h1> Register </h1>
+			<label for='nameReg'> Full name  </label>
+	    	<input type='text' id='nameReg' >
+
+			<label for='usernameReg'> Email (used as username) </label>
+	    	<input type='email' id='usernameReg' >
+
 			<label for='passwordReg'> Password </label>
-			<input type='password' id='passwordReg'>
+	    	<input type='password' id='passwordReg' >
+
 			<label for='passwordReg1'> Retype Password </label>
-			<input type='password' id='passwordReg1'>
+	    	<input type='password' id='passwordReg1' >
+
 			<a href='javascript:register()'> Register </a>
 		</div>
 	</div>
 </body>
+
 </html>

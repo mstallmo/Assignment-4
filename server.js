@@ -12,7 +12,7 @@ app.get("/", function (req, res) {
 
 var auth = require('./authenticate.js');
 
-var db = require('mongoskin').db('mongodb://user1:password@localhost:27017/photos');
+var db = require('mongoskin').db('mongodb://user:password@localhost:27017/photos');
 console.log(db);
 
 app.get("/addtodo", function (req, res) {
@@ -35,14 +35,14 @@ app.get("/addtodo", function (req, res) {
  		}
  	}
 
-	db.collection("data").findOne({id: x.id}, function(err, result1) {
+	db.collection(req.query.collection).findOne({id: x.id}, function(err, result1) {
 		if(result1){
 			console.log(result1);
 			result1.name = x.name;
-			db.collection("data").save(result1, callback);
+			db.collection(req.query.collection).save(result1, callback);
 		}
 		else{
-			db.collection("data").insert(x, callback);
+			db.collection(req.query.collection).insert(x, callback);
 		}
 	});
 
@@ -52,19 +52,20 @@ app.get("/addtodo", function (req, res) {
 
 
 app.get("/deletephoto", function (req, res) {
-	var index = req.query.index;
+	var x = req.query;
 	var callback = function(error, result){
 		if(result)
 		{
 			res.end("deleted");
 		}
 	}
-	db.collection("data").remove({"id": index}, callback);
+  console.log(x);
+	db.collection(req.query.collection).remove({"id": x.id}, callback);
 });
 
 
 app.get("/listphotos", function (req, res) {
-	db.collection("data").find().toArray(function(err, result) {
+	db.collection(req.query.collection).find().toArray(function(err, result) {
     	if (result)
     	{
 			res.end(JSON.stringify(result));
@@ -105,7 +106,7 @@ app.post('/uploadFile', function(req, res){
      var fordb = JSON.parse(decodeURIComponent(req.body.fordb));
      console.log(JSON.stringify(fordb));
 
-     db.collection("data").insert(fordb, function(err2, result){
+     db.collection(req.body.collection).insert(fordb, function(err2, result){
          if(result){
              res.end("success");
          }
@@ -176,25 +177,19 @@ app.get('/getUser', function(req, res){
 });
 
 app.get('/createUser', function(req, res){
-	auth.restrict(req, res, db, ['user'], function(ret){
-            if(ret){
-					db.collection(req.query.collection).findOne({userID:req.query.userID}, function(err, result) {
+				db.collection(req.query.collection).findOne({userID:req.query.userID}, function(err, result) {
 						if(result) {
 							res.send('0');
 						} else {
 							db.collection(req.query.collection).insert(req.query, function(err, result) {
-								if (err) throw err;
-								if (result) {
-									res.send('1');
-								}
-							});
-						}
-			  });
-			} else {
-				res.send('You do not have the proper permissions');
-			}
-		});
-});
+							if (err) throw err;
+							if (result) {
+								res.send('1');
+							}
+						});
+					}
+		  });
+	  });
 
 console.log("Simple static server listening at http://" + hostname + ":" + port);
 app.listen(port, hostname);
