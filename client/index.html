@@ -1,10 +1,15 @@
 <html>
 <head>
-	<style>
 
-	</style>
-
+	<link href="style.css" rel="stylesheet" />
 	<script src="md5.js"></script>
+	<script src="jquery-1.11.0.min.js"></script>
+	<script src="lightbox.min.js"></script>
+	<link href="lightbox.css" rel="stylesheet" />
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+
 
 	<script>
 
@@ -122,10 +127,11 @@ function addNew()
 		   allPhotos = list;
 		   var output = "";
 		   for(var i=0; i < list.length; i++){
-			   output = output + "<p>" + list[i].name + "</p>";
-			   output = output + "<a href='" + list[i].url + "' target='_blank'>" + "View</a>";
-			   output = output + "<a href='javascript:renamePhoto(" + i + ")'>" + "Rename</a>";
-			   output = output + "<a href='javascript:deletePhoto(" + i + ")'>" + "Delete</a>";
+			   output = output + "<div id=title><h1>" + list[i].name + "</h1></div>";
+				 output = output +"<div class='image'>"+"<a class = 'thumbnail' href=" + list[i].url + " data-lightbox ='user' target = '_blank'>" + "<img id='test' class='img-rounded' src='" + list[i].url +
+			  	"'>" + "</a>"+"</div>";
+			   output = output + "<a href='javascript:renamePhoto(" + i + ")' id='rename' class='btn btn-default'>" + "Rename</a>";
+			   output = output + "<a href='javascript:deletePhoto(" + i + ")' id='delete' class='btn btn-default'>" + "Delete</a>";
 			   output = output + "<hr>";
 		   }
 		   document.getElementById("list").innerHTML = output;
@@ -136,7 +142,6 @@ function addNew()
 
    function deletePhoto(i){
 	   var id = allPhotos[i].id;
-		 alert(id);
 	   var url = "./deletephoto?id=" + encodeURIComponent(id)
 		  			 +"&collection=" + userID;
 	   var callback = function(data){
@@ -246,6 +251,7 @@ function addNew()
 			list is empty
 		</div>
 	</div>
+
 	<div id='prelogin'>
 		<div class='box'>
 			<h1> Sign in </h1>
